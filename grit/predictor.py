@@ -49,18 +49,19 @@ class Visualizer_GRiT(Visualizer):
 
 
 class VisualizationDemo(object):
-    def __init__(self, cfg, instance_mode=ColorMode.IMAGE):
-        self.cpu_device = torch.device("cpu")
+    def __init__(self, cfg, instance_mode=ColorMode.IMAGE, device='cpu'):
+        self.device = torch.device(device)
         self.instance_mode = instance_mode
 
-        self.predictor = DefaultPredictor(cfg)
+        self.predictor = DefaultPredictor(cfg, device=device)
 
     def run_on_image(self, image):
-        predictions = self.predictor(image)
+        predictions = self.predictor(image, )
         # Convert image from OpenCV BGR format to Matplotlib RGB format.
         image = image[:, :, ::-1]
         visualizer = Visualizer_GRiT(image, instance_mode=self.instance_mode)
-        instances = predictions["instances"].to(self.cpu_device)
+        instances = predictions["instances"].to(self.device)
+        instances=instances.to(torch.device('cpu'))
         vis_output = visualizer.draw_instance_predictions(predictions=instances)
 
         return predictions, vis_output
